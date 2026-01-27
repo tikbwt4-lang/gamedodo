@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <title>Misi Robot Dodo: 10 Level Algoritma</title>
+    <style>
+        :root { --biru: #0288d1; --hijau: #388e3c; --merah: #d32f2f; }
+        body { font-family: 'Arial Rounded MT Bold', sans-serif; text-align: center; background: #fdf6e3; margin: 0; padding: 20px; }
+        
+        .header { background: white; padding: 10px; border-radius: 15px; box-shadow: 0 4px #ddd; display: inline-block; margin-bottom: 20px; }
+        h2 { margin: 5px 0; color: var(--biru); }
+
+        #grid { 
+            display: grid; grid-template-columns: repeat(5, 65px); 
+            grid-template-rows: repeat(5, 65px);
+            gap: 8px; justify-content: center; margin: 10px auto; 
+            background: #eee; padding: 10px; border-radius: 10px; width: fit-content;
+        }
+        .cell { 
+            width: 65px; height: 65px; background: white; 
+            border-radius: 8px; display: flex; align-items: center; 
+            justify-content: center; font-size: 30px; transition: 0.2s;
+        }
+        .obstacle { background: #ffebee; }
+
+        #code-display { 
+            background: #fff; border: 3px solid var(--biru); 
+            min-height: 45px; width: 350px; margin: 15px auto; 
+            padding: 10px; border-radius: 10px; display: flex; gap: 8px; flex-wrap: wrap; align-items: center;
+        }
+        .code-item { background: var(--biru); color: white; padding: 4px 8px; border-radius: 5px; font-weight: bold; }
+
+        .controls button { 
+            padding: 15px 20px; font-size: 24px; margin: 5px; 
+            cursor: pointer; border-radius: 12px; border: none; 
+            background: white; box-shadow: 0 5px #ccc;
+        }
+        .controls button:active { transform: translateY(4px); box-shadow: 0 1px #ccc; }
+        
+        .action-btns { margin-top: 20px; }
+        .btn-go { background: var(--hijau) !important; color: white !important; width: 180px; font-weight: bold; }
+        .btn-reset { background: var(--merah) !important; color: white !important; }
+    </style>
+</head>
+<body>
+
+    <div class="header">
+        <h2>Level: <span id="lvlText">1</span>/10</h2>
+        <div>⭐ Skor: <span id="scoreText">0</span></div>
+    </div>
+
+    <div id="grid"></div>
+
+    <div id="code-display">
+        <span style="font-size: 14px; color: gray;">Urutan Jalan:</span>
+    </div>
+
+    <div class="controls">
+        <button onclick="addCmd('⬆️')">⬆️</button><br>
+        <button onclick="addCmd('⬅️')">⬅️</button>
+        <button onclick="addCmd('⬇️')">⬇️</button>
+        <button onclick="addCmd('➡️')">➡️</button>
+    </div>
+
+    <div class="action-btns">
+        <button class="controls button btn-reset" onclick="clearCode()">Hapus</button>
+        <button class="controls button btn-go" onclick="runRobot()">JALANKAN! ▶️</button>
+    </div>
+
+    <script>
+        let currentLevel = 1;
+        let score = 0;
+        let rx = 0, ry = 4; // Start di kiri bawah
+        let gx = 4, gy = 0; // Finish di kanan atas
+        let commands = [];
+        let obstacles = [];
+        const gridSize = 5;
+
+        function setupLevel() {
+            commands = [];
+            rx = 0; ry = 4;
+            updateUI();
+            
+            // Atur rintangan berdasarkan level
+            obstacles = [];
+            let numObstacles = Math.min(currentLevel - 1, 6); // Tambah rintangan tiap level
+            
+            while(obstacles.length < numObstacles) {
+                let ox = Math.floor(Math.random() * gridSize);
+                let oy = Math.floor(Math.random() * gridSize);
+                // Jangan letakkan rintangan di start atau finish
+                if((ox !== rx || oy !== ry) && (ox !== gx || oy !== gy)) {
+                    if(!obstacles.some(o => o.x === ox && o.y === oy)) {
+                        obstacles.push({x: ox, y: oy});
+                    }
+                }
+            }
+            drawMap();
+        }
+
+        function drawMap() {
+            const gridDiv = document.getElementById('grid');
+            gridDiv.innerHTML = '';
+            for (let y = 0; y < gridSize; y++) {
+                for (let x = 0; x < gridSize; x++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    
+                    const isObstacle = obstacles.some(o => o.x === x && o.y === y);
+                    
+                    if (x === rx && y === ry) cell.innerText = '🤖';
+                    else if (x === gx && y === gy) cell.innerText = '🚩';
+                    else if (isObstacle) {
+                        cell.innerText = '🕳️';
+                        cell.classList.add('obstacle');
+                    }
+                    
+                    gridDiv.appendChild(cell);
+                }
+            }
+        }
+
+        function addCmd(dir) {
+            if(commands.length < 15) {
+                commands.push(dir);
+                updateUI();
+            }
+        }
+
+        function updateUI() {
+            const display = document.getElementById('code-display');
+            display.innerHTML = '<span style="font-size: 14px; color: gray;">Urutan Jalan:</span>';
+            commands.forEach(c => {
+                const span = document.createElement('span');
+                span.className = 'code-item';
+                span.innerText = c;
+                display.appendChild(span);
+            });
+            document.getElementById('lvlText').innerText = currentLevel;
+            document.getElementById('scoreText').innerText = score;
+        }
+
+        function clearCode() {
+            commands = [];
+            rx = 0; ry = 4;
+            updateUI();
+            drawMap();
+        }
+
+        async function runRobot() {
+            for (let cmd of commands) {
+                if (cmd === '⬆️' && ry > 0) ry--;
+                else if (cmd === '⬇️' && ry < 4) ry++;
+                else if (cmd === '⬅️' && rx > 0) rx--;
+                else if (cmd === '➡️' && rx < 4) rx++;
+
+                drawMap();
+                
+                // Cek Tabrak Lubang
+                if (obstacles.some(o => o.x === rx && o.y === ry)) {
+                    alert("OH TIDAK! 😱 Robot jatuh ke lubang!");
+                    clearCode();
+                    return;
+                }
+                await new Promise(r => setTimeout(r, 400));
+            }
+
+            if (rx === gx && ry === gy) {
+                alert("LUAR BIASA! 🌈 Level " + currentLevel + " Berhasil!");
+                score += 10;
+                if(currentLevel < 10) {
+                    currentLevel++;
+                    setupLevel();
+                } else {
+                    alert("SELAMAT! Kamu sudah menyelesaikan semua level! Kamu Ahli Coding!");
+                    currentLevel = 1;
+                    score = 0;
+                    setupLevel();
+                }
+            } else {
+                alert("Belum sampai tujuan, ayo edit kodenya!");
+                rx = 0; ry = 4;
+                drawMap();
+            }
+        }
+
+        setupLevel();
+    </script>
+</body>
+</html>
