@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Absensi Ekstrakurikuler - SDS Barunawati IV</title>
+<style>
+*{box-sizing:border-box}
+.date-input{width:125px;padding:4px;border:1px solid #cbd5e1;border-radius:5px;font-size:11px}body{font-family:Arial,Helvetica,sans-serif;margin:0;background:#f3f6fb;color:#172033}
+header{background:linear-gradient(135deg,#0b4f9c,#1684d8);color:#fff;padding:22px}
+header h1{margin:0 0 5px;font-size:25px} header p{margin:0;opacity:.9}
+.container{max-width:1250px;margin:20px auto;padding:0 16px}.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:18px;box-shadow:0 4px 18px #173b6518}
+.grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}.field label{display:block;font-weight:700;font-size:13px;margin-bottom:6px}
+input,select,button{font:inherit}input,select{width:100%;padding:10px;border:1px solid #ccd5e2;border-radius:8px;background:#fff}
+button{border:0;border-radius:8px;padding:10px 14px;cursor:pointer;font-weight:700}.primary{background:#0b66c3;color:#fff}.green{background:#1b8a5a;color:#fff}.danger{background:#d94a4a;color:#fff}.gray{background:#e9eef5;color:#27364d}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}.table-wrap{overflow:auto}table{border-collapse:collapse;width:100%;min-width:850px}th,td{border:1px solid #cbd5e1;padding:7px;text-align:center}th{background:#eaf2fb}td.name{text-align:left;font-weight:600}td input[type=checkbox]{width:20px;height:20px}
+.small{font-size:12px;color:#617087}.status{font-weight:700;margin-top:8px}.importbox{display:flex;gap:8px;align-items:end;flex-wrap:wrap}
+@media(max-width:850px){.grid{grid-template-columns:1fr 1fr}}@media(max-width:520px){.grid{grid-template-columns:1fr}}
+@media print{
+  .date-input{border:0;padding:0;width:auto;font-size:10px;background:transparent}
+  body{background:#fff}.no-print,header .subtitle{display:none!important}.card{box-shadow:none;border:0;padding:0}.container{max-width:none;margin:0;padding:0}
+  .print-head{display:block!important;text-align:center;margin-bottom:12px}.print-head h2{margin:0}.print-head p{margin:4px}
+  table{font-size:10px}th,td{padding:5px}.signature{display:flex!important;justify-content:flex-end;margin-top:30px}
+}
+.print-head,.signature{display:none}.signature-box{text-align:center;width:260px}.signature-line{margin-top:70px;border-bottom:1px solid #222}.hint{background:#f7fafc;border-left:4px solid #1684d8;padding:10px;margin-top:10px}
+</style>
+</head>
+<body>
+<header>
+  <div class="container" style="margin:0 auto">
+    <h1>Absensi Kehadiran Ekstrakurikuler</h1>
+    <p class="subtitle">SDS Barunawati IV</p>
+  </div>
+</header>
+<div class="container">
+<section class="card no-print">
+  <div class="grid">
+    <div class="field"><label>Nama Ekskul</label><select id="ekskul"><option>Pramuka</option><option>Silat</option><option>Tari</option><option>Menyanyi</option><option>Futsal</option><option>Marawis</option><option>Paskibra</option></select></div>
+    <div class="field"><label>Nama Koordinator</label><input id="koordinator" placeholder="Nama koordinator"></div>
+    <div class="field"><label>Bulan</label><select id="bulan"></select></div>
+    <div class="field"><label>Tahun</label><input id="tahun" type="number" min="2000" max="2100"></div>
+  </div>
+  <div class="actions">
+    <button class="primary" onclick="tambahSiswa()">+ Tambah Murid</button>
+    <button class="gray" onclick="document.getElementById('file').click()">Upload CSV</button>
+    <input id="file" class="no-print" type="file" accept=".csv,.txt" style="display:none" onchange="importCSV(event)">
+    <button class="green" onclick="window.print()">Cetak / Simpan PDF</button>
+    <button class="danger" onclick="hapusSemua()">Hapus Semua Murid</button>
+  </div>
+  <div class="hint small">Format CSV: <b>Nama,Kelas</b>. Contoh: Andi Saputra,5A. Data tersimpan otomatis di browser perangkat ini.</div>
+</section>
+
+<section class="card">
+  <div class="print-head">
+    <h2>DAFTAR ABSENSI EKSTRAKURIKULER</h2>
+    <p><b>SDS BARUNAWATI IV</b></p>
+    <p id="printInfo"></p>
+  </div>
+  <div class="table-wrap">
+  <table>
+    <thead><tr><th>No</th><th>Nama Murid</th><th>Kelas</th>
+<th>Pertemuan 1<br><input class="date-input" id="tgl1" type="date" onchange="setTanggal(0,this.value)"></th>
+<th>Pertemuan 2<br><input class="date-input" id="tgl2" type="date" onchange="setTanggal(1,this.value)"></th>
+<th>Pertemuan 3<br><input class="date-input" id="tgl3" type="date" onchange="setTanggal(2,this.value)"></th>
+<th>Pertemuan 4<br><input class="date-input" id="tgl4" type="date" onchange="setTanggal(3,this.value)"></th>
+<th class="no-print">Aksi</th></tr></thead>
+    <tbody id="tbody"></tbody>
+  </table>
+  </div>
+  <div class="signature">
+    <div class="signature-box">
+      <div>Jakarta, __________________</div>
+      <div>Koordinator Ekstrakurikuler</div>
+      <div class="signature-line"></div>
+      <div id="sigName"><b>Nama Koordinator</b></div>
+    </div>
+  </div>
+</section>
+</div>
+<script>
+const months=["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+const stateKey="absensi_sds_barunawati_iv_v1";
+let data=JSON.parse(localStorage.getItem(stateKey)||'{"students":[],"meta":{"ekskul":"Pramuka","koordinator":"","bulan":"Januari","tahun":'+new Date().getFullYear()+',"tanggal":["","","",""]}}');
+if(!data.meta.tanggal)data.meta.tanggal=["","","",""];
+const $=id=>document.getElementById(id);
+months.forEach(m=>{let o=document.createElement("option");o.textContent=m;$("bulan").appendChild(o)});
+$("ekskul").value=data.meta.ekskul;$("koordinator").value=data.meta.koordinator;$("bulan").value=data.meta.bulan;$("tahun").value=data.meta.tahun;
+function save(){data.meta={ekskul:$("ekskul").value,koordinator:$("koordinator").value,bulan:$("bulan").value,tahun:$("tahun").value};localStorage.setItem(stateKey,JSON.stringify(data));render()}
+["ekskul","koordinator","bulan","tahun"].forEach(id=>$(id).addEventListener("change",save));
+function tambahSiswa(){data.students.push({nama:"",kelas:"",abs:[false,false,false,false]});save();setTimeout(()=>{let x=document.querySelectorAll(".nm");x[x.length-1]?.focus()},30)}
+function hapusSiswa(i){if(confirm("Hapus murid ini?")){data.students.splice(i,1);save()}}
+function hapusSemua(){if(confirm("Hapus semua data murid?")){data.students=[];save()}}
+function update(i,k,v){data.students[i][k]=v;localStorage.setItem(stateKey,JSON.stringify(data))}
+function check(i,j,v){data.students[i].abs[j]=v;localStorage.setItem(stateKey,JSON.stringify(data))}
+function setTanggal(i,v){data.meta.tanggal[i]=v;localStorage.setItem(stateKey,JSON.stringify(data));render()}
+function render(){
+ $("tbody").innerHTML=data.students.map((s,i)=>`<tr>
+ <td>${i+1}</td><td class="name"><input class="nm" value="${esc(s.nama)}" onchange="update(${i},'nama',this.value)" placeholder="Nama murid"></td>
+ <td><input value="${esc(s.kelas)}" onchange="update(${i},'kelas',this.value)" placeholder="Kelas" style="width:85px"></td>
+ ${s.abs.map((v,j)=>`<td><input type="checkbox" ${v?"checked":""} onchange="check(${i},${j},this.checked)"></td>`).join("")}
+ <td class="no-print"><button class="danger" onclick="hapusSiswa(${i})">Hapus</button></td></tr>`).join("");
+ for(let i=0;i<4;i++){let el=$("tgl"+(i+1));if(el)el.value=data.meta.tanggal[i]||""}
+ $("printInfo").textContent=`Ekskul: ${data.meta.ekskul}  |  Koordinator: ${data.meta.koordinator||"________________"}  |  Bulan: ${data.meta.bulan}  |  Tahun: ${data.meta.tahun}`;
+
+ $("sigName").innerHTML="<b>"+esc(data.meta.koordinator||"________________")+"</b>";
+}
+function esc(s){return String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+function importCSV(e){
+ const f=e.target.files[0]; if(!f)return; const r=new FileReader();
+ r.onload=()=>{const lines=r.result.split(/\r?\n/).filter(x=>x.trim()); let start=0;
+ if(lines[0].toLowerCase().includes("nama"))start=1;
+ for(let i=start;i<lines.length;i++){let p=lines[i].split(",");if(p[0]?.trim())data.students.push({nama:p[0].trim(),kelas:(p[1]||"").trim(),abs:[false,false,false,false]})}
+ save();e.target.value="";alert("Data murid berhasil diimpor.");};r.readAsText(f);
+}
+render();
+</script>
+</body>
+</html>
